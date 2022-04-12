@@ -90,7 +90,8 @@ def write_docker_hook(arch_dir, image_name, mounts, verbose=False, use_nvidia_do
         for mnt in mounts if mnt.writeable])
     # mount the script into the docker image
     mnt_cmd += ' -v $(pwd):/'+DAR_PAYLOAD_MOUNT
-    docker_cmd = ('docker run {gpu_opt} {mount_cmds} {interactive_opt} {img} /bin/bash -c "cd /{dar_payload};./run.sh $*"'.format(
+    docker_cmd = ('docker run {shmem} {gpu_opt} {mount_cmds} {interactive_opt} {img} /bin/bash -c "cd /{dar_payload};./run.sh $*"'.format(
+        shmem='--shm-size=16gb',
         gpu_opt='--gpus all' if use_nvidia_docker else '',
         img=image_name,
         mount_cmds=mnt_cmd,

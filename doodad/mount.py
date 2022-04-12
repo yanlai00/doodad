@@ -54,7 +54,7 @@ class MountLocal(Mount):
     """
     def __init__(self, local_dir, mount_point=None, cleanup=True,
                 filter_ext=('.pyc', '.log', '.git', '.mp4'),
-                filter_dir=('data', '.git'),
+                filter_dir=('.git'),
                 delete_before_mount=True,
                 **kwargs):
         """

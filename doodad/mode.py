@@ -1,6 +1,5 @@
 import os
 import json
-import time
 import uuid
 import six
 import base64
@@ -9,10 +8,9 @@ import shlex
 
 from doodad.utils import shell
 from doodad.utils import safe_import
+from doodad import mount
 from doodad.apis.ec2.autoconfig import Autoconfig
 from doodad.credentials.ec2 import AWSCredentials
-
-from msrestazure.azure_exceptions import CloudError as AzureCloudError
 
 googleapiclient = safe_import.try_import('googleapiclient')
 googleapiclient.discovery = safe_import.try_import('googleapiclient.discovery')
@@ -698,8 +696,7 @@ class AzureMode(LaunchMode):
         else:
             regions_to_try += self._retry_regions
         regions_to_try = _remove_duplicates(regions_to_try)
-        # use_data_science_image = self.use_gpu and (self.gpu_model == 'nvidia-tesla-v100' or self.gpu_model == 'nvidia-tesla-t4')
-        use_data_science_image = False  # keep manual installation of image until we switch to a more affordable disk type
+        use_data_science_image = self.use_gpu and (self.gpu_model == 'nvidia-tesla-v100' or self.gpu_model == 'nvidia-tesla-t4')
         install_nvidia_extension = self.use_gpu and not use_data_science_image
 
         first_try = True
@@ -924,24 +921,16 @@ class AzureMode(LaunchMode):
             assert len(roles) == 1
             contributor_role = roles[0]
 
-            # Add RG scope to the MSI tokenid
-            tokens_left = [vm_result.identity.principal_id]
-            while tokens_left:
-                try:
-                    for i, msi_identity in enumerate(tokens_left):
-                        authorization_client.role_assignments.create(
-                            resource_group.id,
-                            uuid.uuid4(),  # Role assignment random name
-                            {
-                                'role_definition_id': contributor_role.id,
-                                'principal_id': msi_identity
-                            }
-                        )
-                        del tokens_left[i]
-                except AzureCloudError as e:
-                    if verbose:
-                        print('Waiting for the principal ID {}.'.format(msi_identity))
-                    time.sleep(5)
+            # Add RG scope to the MSI tokenddd
+            for msi_identity in [vm_result.identity.principal_id]:
+                authorization_client.role_assignments.create(
+                    resource_group.id,
+                    uuid.uuid4(),  # Role assignment random name
+                    {
+                        'role_definition_id': contributor_role.id,
+                        'principal_id': msi_identity
+                    }
+                )
         except (Exception, KeyboardInterrupt) as e:
             if 'resource_group' in locals():
                 if verbose:
@@ -949,6 +938,7 @@ class AzureMode(LaunchMode):
                 resource_group_client.resource_groups.delete(
                     azure_resource_group
                 )
+            from msrestazure.azure_exceptions import CloudError as AzureCloudError
             if isinstance(e, AzureCloudError):
                 print("Error when creating VM. Error message:")
                 print(e.message + '\n')

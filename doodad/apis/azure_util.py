@@ -62,6 +62,7 @@ def get_gpu_type_instance(gpu_model, num_gpu, num_vcpu, promo_price):
         raise ValueError('Unsuported GPU no. {} for GPU {}'.format(num_gpu, gpu_model))
     instance_type = instance_series[num_gpu]
     if isinstance(instance_type, dict):
+        num_vcpu=8
         if num_vcpu not in instance_type:
             raise ValueError('Unsuported vCPU no. {} for GPU {} with GPU no. {}'.format(num_vcpu, gpu_model, num_gpu))
         ret = instance_type[num_vcpu]
