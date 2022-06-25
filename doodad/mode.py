@@ -580,8 +580,7 @@ class AzureMode(LaunchMode):
             spot_price (float): Maximal price for preemptible instance. Specify -1 for the no limit price for the spot instance.
             **kwargs:
     """
-    US_REGIONS = ['eastus2', 'southcentralus', 'eastus', 'westus2', 'centralus', 'northcentralus',
-                  'westus', 'westcentralus']
+    US_REGIONS = ['eastus', 'eastus2', 'southcentralus']
     ABROAD_REGIONS = ['canadacentral', 'canadaeast', 'northeurope', 'ukwest', 'uksouth', 'westeurope', 'francecentral',
                       'switzerlandnorth', 'germanywestcentral', 'norwayeast', 'brazilsouth', 'eastasia',
                       'japanwest', 'japaneast', 'koreacentral', 'koreasouth', 'southeastasia',
